@@ -136,19 +136,27 @@
         </div>
         
         <div id="login-form">
-            <div class="form-group"><label>Email đăng nhập</label><input type="text" id="login-username" placeholder="Nhập email của bạn"></div>
-            <div class="form-group">
-                <label>Mật khẩu</label>
-                <div style="position: relative;">
-                    <input type="password" id="login-password" placeholder="Nhập mật khẩu" style="width: 100%; padding-right: 35px; box-sizing: border-box;">
-                    <span onclick="togglePassword('login-password', this)" style="position: absolute; right: 10px; top: 12px; cursor: pointer; user-select: none;">👁️</span>
-                </div>
-            </div>
-            <button class="btn-submit" onclick="handleLogin()">ĐĂNG NHẬP</button>
-            <div style="text-align: center; margin-top: 15px;">
-                <a href="#" onclick="showForgotPassword()" style="color: var(--primary); font-size: 14px; text-decoration: none; font-weight: 500;">Quên mật khẩu?</a>
-            </div>
+    <div class="form-group"><label>Email đăng nhập</label><input type="text" id="login-username" placeholder="Nhập email của bạn"></div>
+    <div class="form-group">
+        <label>Mật khẩu</label>
+        <div style="position: relative;">
+            <input type="password" id="login-password" placeholder="Nhập mật khẩu" style="width: 100%; padding-right: 35px; box-sizing: border-box;">
+            <span onclick="togglePassword('login-password', this)" style="position: absolute; right: 10px; top: 12px; cursor: pointer; user-select: none;">👁️</span>
         </div>
+    </div>
+    
+    <button class="btn-submit" onclick="handleLogin()">ĐĂNG NHẬP</button>
+
+    <div style="text-align: center; margin: 15px 0; color: #666; font-size: 14px;">Hoặc</div>
+
+    <button class="btn-submit" onclick="handleGoogleLogin()" style="background: white; color: #333; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 0;">
+        <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" style="width: 20px;">
+        Đăng nhập bằng Google
+    </button>
+    <div style="text-align: center; margin-top: 15px;">
+        <a href="#" onclick="showForgotPassword()" style="color: var(--primary); font-size: 14px; text-decoration: none; font-weight: 500;">Quên mật khẩu?</a>
+    </div>
+</div>
 
         <div id="register-form" class="hidden">
             <div class="form-group"><label>Tên hiển thị</label><input type="text" id="reg-fullname" placeholder="Ví dụ: Huy Hiệp"></div>

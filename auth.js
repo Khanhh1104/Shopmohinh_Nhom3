@@ -2,7 +2,10 @@ import { auth } from './firebase-config.js';
 import { 
     createUserWithEmailAndPassword, 
     signInWithEmailAndPassword,
-    updateProfile 
+    updateProfile, 
+    GoogleAuthProvider,    
+    signInWithPopup,        
+    sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 // --- CÁC HÀM GIAO DIỆN (UI) ---
@@ -50,6 +53,7 @@ export async function handleRegister() {
 }
 
 // --- LOGIC ĐĂNG NHẬP ---
+// Sửa trong file auth.js
 export async function handleLogin() {
     const email = document.getElementById('login-username').value;
     const pass = document.getElementById('login-password').value;
@@ -57,12 +61,23 @@ export async function handleLogin() {
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, pass);
         const user = userCredential.user;
-        loginSuccess({
-            username: user.email,
-            fullname: user.displayName || user.email.split('@')[0]
-        });
+
+        // --- ĐOẠN NÀY DÙNG ĐỂ GÁN QUYỀN ADMIN ---
+       
+        if (user.email === 'nhom3@gmail.com') {
+            loginSuccess({
+                username: 'admin', 
+                fullname: 'Admin Quản Trị'
+            });
+        } else {
+            loginSuccess({
+                username: user.email,
+                fullname: user.displayName || user.email.split('@')[0]
+            });
+        }
+        
     } catch (error) {
-        showToast("Sai tài khoản hoặc mật khẩu!", "error");
+        showToast("Tài khoản hoặc mật khẩu không chính xác!", "error");
     }
 }
 
@@ -81,7 +96,42 @@ export function logout() {
         location.reload();
     });
 }
+// --- LOGIC ĐĂNG NHẬP BẰNG GOOGLE ---
+export async function handleGoogleLogin() {
+    const provider = new GoogleAuthProvider();
+    try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        
+        // Đăng nhập thành công, gọi hàm loginSuccess
+        loginSuccess({
+            username: user.email,
+            fullname: user.displayName || 'Người dùng Google'
+        });
+    } catch (error) {
+        console.error(error);
+        showToast("Lỗi đăng nhập Google: " + error.message, "error");
+    }
+}
 
+// --- LOGIC QUÊN MẬT KHẨU ---
+export async function handleForgotPassword() {
+    const email = document.getElementById('forgot-username').value;
+    
+    if(!email) {
+        return showToast("Vui lòng nhập email của bạn!", "error");
+    }
+
+    try {
+        // Firebase sẽ tự động gửi email chứa link reset password
+        await sendPasswordResetEmail(auth, email);
+        showToast("Đã gửi email khôi phục! Vui lòng kiểm tra hộp thư của bạn.", "success");
+        switchTab('login'); // Chuyển người dùng về lại trang đăng nhập
+    } catch (error) {
+        console.error(error);
+        showToast("Lỗi: Không tìm thấy tài khoản hoặc email sai!", "error");
+    }
+}
 // --- QUAN TRỌNG: Đưa các hàm ra ngoài để HTML gọi được ---
 window.openModal = openModal;
 window.closeModal = closeModal;
@@ -89,3 +139,5 @@ window.switchTab = switchTab;
 window.handleRegister = handleRegister;
 window.handleLogin = handleLogin;
 window.logout = logout;
+window.handleGoogleLogin = handleGoogleLogin;
+window.handleForgotPassword = handleForgotPassword;
