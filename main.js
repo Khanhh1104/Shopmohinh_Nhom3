@@ -406,3 +406,23 @@ window.onhashchange = render;
 updateAuthBtn();
 applySiteConfig();
 render();
+// ==========================================
+// HÀM ẨN / HIỆN MẬT KHẨU (CON MẮT)
+// ==========================================
+function togglePassword(inputId, iconElement) {
+    const input = document.getElementById(inputId);
+    
+    // Nếu đang là password (bị ẩn) -> Chuyển thành text (hiện)
+    if (input.type === 'password') {
+        input.type = 'text';
+        iconElement.innerText = '🙈'; // Đổi icon thành mắt nhắm
+    } 
+    // Nếu đang là text (hiện) -> Chuyển lại thành password (ẩn)
+    else {
+        input.type = 'password';
+        iconElement.innerText = '👁️'; // Đổi icon thành mắt mở
+    }
+}
+
+// Mở khóa hàm ra toàn cục (đề phòng file main.js bị đóng gói)
+window.togglePassword = togglePassword;

@@ -47,7 +47,8 @@
             <option value="PG">PG</option>
         </select>
         
-        <div style="flex: 1;"></div> <select id="sort" onchange="render()" style="padding: 10px 15px; border-radius: 50px; border: 1px solid #eee; outline: none; cursor: pointer; background: white; font-weight: 500; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        <div style="flex: 1;"></div> 
+        <select id="sort" onchange="render()" style="padding: 10px 15px; border-radius: 50px; border: 1px solid #eee; outline: none; cursor: pointer; background: white; font-weight: 500; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
             <option value="default">Sắp xếp: Mặc định</option>
             <option value="price-asc">Giá: Thấp đến Cao</option>
             <option value="price-desc">Giá: Cao xuống Thấp</option>
@@ -135,12 +136,12 @@
         </div>
         
         <div id="login-form">
-            <div class="form-group"><label>Tên tài khoản</label><input type="text" id="username" placeholder="Nhập tên đăng nhập"></div>
+            <div class="form-group"><label>Email đăng nhập</label><input type="text" id="login-username" placeholder="Nhập email của bạn"></div>
             <div class="form-group">
                 <label>Mật khẩu</label>
                 <div style="position: relative;">
-                    <input type="password" id="password" placeholder="Nhập mật khẩu" style="width: 100%; padding-right: 35px; box-sizing: border-box;">
-                    <span onclick="togglePassword('password', this)" style="position: absolute; right: 10px; top: 12px; cursor: pointer; user-select: none;">👁️</span>
+                    <input type="password" id="login-password" placeholder="Nhập mật khẩu" style="width: 100%; padding-right: 35px; box-sizing: border-box;">
+                    <span onclick="togglePassword('login-password', this)" style="position: absolute; right: 10px; top: 12px; cursor: pointer; user-select: none;">👁️</span>
                 </div>
             </div>
             <button class="btn-submit" onclick="handleLogin()">ĐĂNG NHẬP</button>
@@ -150,8 +151,8 @@
         </div>
 
         <div id="register-form" class="hidden">
-            <div class="form-group"><label>Tên tài khoản</label><input type="text" id="reg-username" placeholder="Chọn tên đăng nhập"></div>
-            <div class="form-group"><label>Họ và tên</label><input type="text" id="reg-fullname" placeholder="Tên hiển thị"></div>
+            <div class="form-group"><label>Tên hiển thị</label><input type="text" id="reg-fullname" placeholder="Ví dụ: Huy Hiệp"></div>
+            <div class="form-group"><label>Email</label><input type="email" id="reg-email" placeholder="Ví dụ: email@gmail.com"></div>
             <div class="form-group">
                 <label>Mật khẩu</label>
                 <div style="position: relative;">
@@ -164,8 +165,8 @@
 
         <div id="forgot-form" class="hidden">
             <h3 style="margin-top:0; color:var(--primary); text-align:center;">Khôi phục mật khẩu</h3>
-            <p style="font-size:14px; color:#666; margin-bottom:15px; text-align:center;">Nhập tên tài khoản của bạn. Hệ thống sẽ gửi email xác nhận đặt lại mật khẩu.</p>
-            <div class="form-group"><label>Tên tài khoản</label><input type="text" id="forgot-username" placeholder="Nhập tên đăng nhập"></div>
+            <p style="font-size:14px; color:#666; margin-bottom:15px; text-align:center;">Nhập email tài khoản của bạn. Hệ thống sẽ gửi thư xác nhận đặt lại mật khẩu.</p>
+            <div class="form-group"><label>Email</label><input type="email" id="forgot-username" placeholder="Nhập email"></div>
             <button class="btn-submit" onclick="handleForgotPassword()">GỬI YÊU CẦU</button>
             <div style="text-align: center; margin-top: 15px;">
                 <a href="#" onclick="switchTab('login')" style="color: #666; font-size: 14px; text-decoration: none;">⬅ Quay lại đăng nhập</a>
@@ -192,10 +193,11 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 <script src="data.js"></script>
-<script src="auth.js"></script>
 <script src="cart.js"></script>
 <script src="admin.js"></script>
 <script src="main.js"></script>
+
+<script type="module" src="auth.js"></script>
 
 </body>
 </html>
