@@ -36,12 +36,15 @@ export function showForgotPassword() {
 }
 
 // --- HÀM CẬP NHẬT HIỂN THỊ TÊN NGƯỜI DÙNG ---
+// --- HÀM CẬP NHẬT GIAO DIỆN & PHÂN QUYỀN ADMIN ---
 export function updateAuthBtn() {
     const authBtnContainer = document.getElementById('auth-btn');
+    const adminPanel = document.getElementById('admin-panel'); // Trỏ tới khu vực quản trị
+    
     if (!authBtnContainer) return;
 
     if (AppState.currentUser) {
-        // Nếu đã đăng nhập: Hiển thị tên và nút Thoát
+        // 1. Hiển thị tên người dùng và nút Thoát
         authBtnContainer.innerHTML = `
             <div style="display: flex; align-items: center; gap: 12px; background: #f8fafc; padding: 5px 15px; border-radius: 50px; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                 <span style="font-weight: 600; color: var(--primary); font-size: 14px;">
@@ -52,9 +55,23 @@ export function updateAuthBtn() {
                 </button>
             </div>
         `;
+
+        // 2. PHÂN QUYỀN: KIỂM TRA XEM CÓ PHẢI ADMIN KHÔNG
+        // Cấp quyền cho email nhom3@gmail.com hoặc tài khoản 'admin' cũ
+        if (AppState.currentUser.username === 'nhom3@gmail.com' || AppState.currentUser.username === 'admin') {
+            if (adminPanel) {
+                adminPanel.classList.remove('hidden'); // Mở khóa khu vực quản trị
+                if (typeof renderAdmin === 'function') renderAdmin(); // Tải dữ liệu sản phẩm vào bảng
+            }
+        } else {
+            // Nếu là người dùng bình thường -> Giấu khu vực quản trị
+            if (adminPanel) adminPanel.classList.add('hidden');
+        }
+
     } else {
-        // Nếu chưa đăng nhập: Hiển thị nút mặc định
+        // Chưa đăng nhập: Hiển thị nút mặc định và giấu khu vực quản trị
         authBtnContainer.innerHTML = `<button onclick="openModal()">👤 Đăng nhập</button>`;
+        if (adminPanel) adminPanel.classList.add('hidden');
     }
 }
 
