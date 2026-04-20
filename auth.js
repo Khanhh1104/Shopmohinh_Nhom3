@@ -31,9 +31,31 @@ export function switchTab(tab) {
     document.getElementById(tab + '-form').classList.remove('hidden');
 }
 
-// ---> ĐÂY CHÍNH LÀ HÀM BỊ THIẾU <---
 export function showForgotPassword() {
     switchTab('forgot');
+}
+
+// --- HÀM CẬP NHẬT HIỂN THỊ TÊN NGƯỜI DÙNG ---
+export function updateAuthBtn() {
+    const authBtnContainer = document.getElementById('auth-btn');
+    if (!authBtnContainer) return;
+
+    if (AppState.currentUser) {
+        // Nếu đã đăng nhập: Hiển thị tên và nút Thoát
+        authBtnContainer.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 12px; background: #f8fafc; padding: 5px 15px; border-radius: 50px; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <span style="font-weight: 600; color: var(--primary); font-size: 14px;">
+                    Hi, ${AppState.currentUser.fullname}
+                </span>
+                <button onclick="logout()" style="background: none; border: none; color: #64748b; cursor: pointer; font-size: 12px; padding: 0; text-decoration: underline;">
+                    Thoát
+                </button>
+            </div>
+        `;
+    } else {
+        // Nếu chưa đăng nhập: Hiển thị nút mặc định
+        authBtnContainer.innerHTML = `<button onclick="openModal()">👤 Đăng nhập</button>`;
+    }
 }
 
 // --- LOGIC ĐĂNG KÝ ---
@@ -85,19 +107,13 @@ export async function handleGoogleLogin() {
     }
 }
 
-// --- TÍNH NĂNG MỚI: QUÊN MẬT KHẨU (GỬI MAIL CHO ADMIN) ---
+// --- QUÊN MẬT KHẨU ---
 export function handleForgotPassword() {
     const adminEmail = "nhom3@gmail.com";
     const userEmail = document.getElementById('forgot-username')?.value || "Người dùng";
-    
-    // Hiển thị thông báo trước
     showToast(`Vui lòng liên hệ Admin qua email: ${adminEmail}`, "error");
-
-    // Tự động soạn thảo nội dung mail
     const subject = encodeURIComponent("Yêu cầu hỗ trợ cấp lại mật khẩu - Gundam Store");
     const body = encodeURIComponent(`Chào Admin,\n\nTôi đã quên mật khẩu cho tài khoản: ${userEmail}.\nVui lòng hỗ trợ tôi khôi phục lại mật khẩu.\n\nTrân trọng!`);
-
-    // Mở ứng dụng mail sau 1.5 giây
     setTimeout(() => {
         window.location.href = `mailto:${adminEmail}?subject=${subject}&body=${body}`;
     }, 1500);
@@ -108,7 +124,7 @@ function loginSuccess(user) {
     localStorage.setItem('currentUser', JSON.stringify(user));
     showToast('Xin chào, ' + user.fullname, 'success');
     closeModal();
-    if(typeof updateAuthBtn === 'function') updateAuthBtn();
+    updateAuthBtn(); // Cập nhật giao diện ngay lập tức
 }
 
 export function logout() {
@@ -119,13 +135,17 @@ export function logout() {
     });
 }
 
-// --- QUAN TRỌNG: Đưa các hàm ra ngoài để HTML gọi được ---
+// --- XUẤT HÀM RA NGOÀI CỬA SỔ TRÌNH DUYỆT ---
 window.openModal = openModal;
 window.closeModal = closeModal;
 window.switchTab = switchTab;
-window.showForgotPassword = showForgotPassword; // <--- CẬP NHẬT Ở ĐÂY NỮA
+window.showForgotPassword = showForgotPassword;
 window.handleRegister = handleRegister;
 window.handleLogin = handleLogin;
 window.handleGoogleLogin = handleGoogleLogin;
 window.handleForgotPassword = handleForgotPassword;
 window.logout = logout;
+window.updateAuthBtn = updateAuthBtn;
+
+// Tự động kiểm tra và hiển thị khi vừa mở web
+updateAuthBtn();
