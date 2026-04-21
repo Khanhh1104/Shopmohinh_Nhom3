@@ -1,6 +1,6 @@
 // Khởi tạo dữ liệu giỏ hàng và ngân hàng cho AppState (để tránh lỗi undefined)
 AppState.cart = JSON.parse(localStorage.getItem('cart')) || [];
-AppState.bankInfo = typeof bankInfo !== 'undefined' ? bankInfo : (JSON.parse(localStorage.getItem('bankInfo')) || {name:'', num:'', owner:'', qr:''});
+
 
 function updateCartCount() {
     const count = AppState.cart.reduce((acc, item) => acc + item.quantity, 0);
