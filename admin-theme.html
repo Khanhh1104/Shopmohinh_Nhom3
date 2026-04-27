@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Giao diện & Banner</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .admin-layout { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .admin-header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom: 16px; }
+    .admin-header h1 { margin:0; font-size: 20px; }
+    .admin-card { background:#fff; border:1px solid #eee; border-radius: 10px; padding: 18px; }
+    .admin-hint { color:#64748b; font-size: 13px; margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <script type="module">
+    import { requireAdminOrRedirect } from './js/auth/role.js';
+    requireAdminOrRedirect({ redirectTo: 'index.html' });
+  </script>
+
+  <div class="admin-layout">
+    <div class="admin-header">
+      <h1>🎨 Cấu hình Giao diện & Banner</h1>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <a class="btn-submit" href="admin.html" style="text-decoration:none; width:auto; padding:10px 14px; background:#0f172a;">⬅ Dashboard</a>
+        <a class="btn-submit" href="index.html" style="text-decoration:none; width:auto; padding:10px 14px; background:#64748b;">⬅ Trang chủ</a>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <p class="admin-hint">Tuỳ biến màu sắc/hình nền và danh sách banner ở trang chủ.</p>
+      <div style="margin-top: 10px;">
+        <div class="form-group"><label>Màu chủ đạo (Primary Color)</label><input type="color" id="cfg-color" value="#e3001b" style="height:40px"></div>
+        <div class="form-group"><label>Hình nền (Link ảnh hoặc mã màu)</label><input type="text" id="cfg-bg" placeholder="VD: https://anh.com/bg.jpg hoặc #f4f4f4"></div>
+        <div class="form-group"><label>Banner Quảng cáo (Mỗi link 1 dòng)</label><textarea id="cfg-banners" rows="4" placeholder="Nhập link ảnh banner..."></textarea></div>
+        <button onclick="saveSiteConfig()" class="btn-submit" style="background:#0f172a;">Lưu Giao Diện</button>
+        <div class="admin-hint">Gợi ý: phần này đang dùng đúng dữ liệu `siteConfig` như trang chủ.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="admin-shared.js"></script>
+  <script src="data.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
+

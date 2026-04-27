@@ -27,6 +27,14 @@ function showToast(msg, type = 'success') {
     setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
 }
 
+function updateStockAlertBadge() {
+    const el = document.getElementById('stock-alert');
+    if(!el) return;
+    const outOfStock = (AppState.products || []).filter(p => (parseInt(p.stock) || 0) <= 0 && p.status !== 'preorder').length;
+    if(outOfStock <= 0) { el.innerHTML = ''; return; }
+    el.innerHTML = `<a href="admin-products.html" title="Sản phẩm hết hàng" style="margin-left:10px; padding:8px 12px; border-radius:999px; border:1px solid #ef4444; color:#ef4444; background:#fff; font-weight:800; text-decoration:none;">🔔 Hết hàng: ${outOfStock}</a>`;
+}
+
 // TÍNH NĂNG MỚI: Hiển thị nút cuộn lên đầu trang khi kéo xuống sâu
 window.onscroll = function() {
     const backToTopBtn = document.getElementById('backToTop');
@@ -49,6 +57,7 @@ function toggleMobileMenu() {
 
 function updateAuthBtn(){
     const area = document.getElementById('auth-btn');
+    const productMgmtBtn = document.getElementById('product-mgmt-btn');
     if(AppState.currentUser){
         area.innerHTML = `<span style="font-weight:bold; margin-right:10px; display:none; @media(min-width:768px){display:inline;}">Hi, ${escapeHTML(AppState.currentUser.fullname)}</span> 
         <button onclick="logout()">Thoát</button>`;
@@ -56,9 +65,11 @@ function updateAuthBtn(){
              const adminPanel = document.getElementById('admin-panel');
              if(adminPanel) adminPanel.classList.remove('hidden');
              if(typeof renderAdmin === 'function') renderAdmin();
+             if(productMgmtBtn) productMgmtBtn.style.display = 'inline-block';
         }
     } else {
         area.innerHTML = `<button onclick="openModal()">👤 Đăng nhập</button>`;
+        if(productMgmtBtn) productMgmtBtn.style.display = 'none';
     }
 }
 
@@ -129,9 +140,17 @@ function goToBanner(idx) {
 // ==========================================
 function render(){
     if(typeof updateCartCount === 'function') updateCartCount();
+    updateStockAlertBadge();
     
     if(location.hash.startsWith('#product-')) return showDetail();
     if(location.hash === '#cart' && typeof showCart === 'function') return showCart();
+    if(location.hash === '#orders' && typeof showOrders === 'function') return showOrders();
+    if(location.hash === '#profile' && typeof showCustomerProfile === 'function') return showCustomerProfile();
+    if(location.hash === '#policy') return showInfoPage('policy');
+    if(location.hash === '#shipping') return showInfoPage('shipping');
+    if(location.hash === '#privacy') return showInfoPage('privacy');
+    if(location.hash === '#contact') return showInfoPage('contact');
+    if(location.hash === '#address') return showInfoPage('address');
 
     document.getElementById('product-list').classList.remove('hidden');
     document.getElementById('pagination').classList.remove('hidden');
@@ -364,6 +383,32 @@ function changeMedia(el, src, type) {
 }
 
 // ==========================================
+// ADMIN TOOLBAR TOGGLE (SIDEBAR MODE)
+// ==========================================
+function toggleAdminConfigToolbar() {
+    const toolbar = document.getElementById('admin-config-toolbar');
+    if (!toolbar) return;
+    
+    const isHidden = toolbar.style.right === '-450px' || toolbar.style.right === '';
+    toolbar.style.right = isHidden ? '0px' : '-450px';
+}
+
+function switchAdminTab(tabName) {
+    // Ẩn tất cả nội dung tab
+    document.querySelectorAll('.admin-config-tab-content').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.admin-config-tab').forEach(el => {
+        el.classList.remove('active');
+        el.style.borderBottomColor = 'transparent';
+    });
+
+    // Hiển thị tab được chọn
+    document.getElementById(`admin-tab-${tabName}`).style.display = 'block';
+    const activeBtn = event.currentTarget;
+    activeBtn.classList.add('active');
+    activeBtn.style.borderBottomColor = 'var(--primary)';
+}
+
+// ==========================================
 // 5. ĐIỀU HƯỚNG TỪ MENU
 // ==========================================
 function showIntro(element) {
@@ -380,6 +425,72 @@ function showIntro(element) {
     // Đóng menu mobile nếu đang mở
     document.getElementById('main-nav').classList.remove('open');
 }
+
+function showInfoPage(key) {
+    document.getElementById('product-list').classList.add('hidden');
+    document.getElementById('pagination').classList.add('hidden');
+    document.getElementById('detail').innerHTML = '';
+    if(document.getElementById('home-banner')) document.getElementById('home-banner').style.display = 'none';
+    if(document.getElementById('toolbar')) document.getElementById('toolbar').style.display = 'none';
+    document.getElementById('intro-panel').classList.remove('hidden');
+
+    let title = 'Thông tin';
+    let body = '';
+
+    if (key === 'policy') {
+        title = 'Chính sách đổi trả';
+        body = `
+          <p><strong>Điều kiện đổi trả:</strong> sản phẩm còn nguyên tem/box/phụ kiện, chưa qua sử dụng.</p>
+          <p><strong>Thời gian:</strong> 3-7 ngày kể từ khi nhận hàng (tuỳ loại sản phẩm).</p>
+          <p><strong>Lưu ý:</strong> vui lòng quay video mở hộp để được hỗ trợ nhanh khi có lỗi.</p>
+        `;
+    } else if (key === 'shipping') {
+        title = 'Chính sách vận chuyển';
+        body = `
+          <p><strong>Phí vận chuyển:</strong> hiện đang áp dụng mặc định 30,000 ₫/đơn (hiển thị khi checkout).</p>
+          <p><strong>Thời gian giao:</strong> nội thành 1-2 ngày, ngoại thành/tỉnh 2-5 ngày (tuỳ khu vực).</p>
+          <p><strong>Trạng thái đơn:</strong> Chờ xác nhận → Đã xác nhận → Đóng gói → Đang giao → Đã giao.</p>
+        `;
+    } else if (key === 'privacy') {
+        title = 'Chính sách bảo mật';
+        body = `
+          <p>Chúng tôi chỉ sử dụng thông tin khách hàng để xử lý đơn hàng và hỗ trợ sau bán.</p>
+          <p>Thông tin gồm: họ tên, số điện thoại, địa chỉ nhận hàng và lịch sử đơn.</p>
+          <p>Khách hàng có thể cập nhật hồ sơ tại mục <strong>“👤 Hồ sơ”</strong>.</p>
+        `;
+    } else if (key === 'contact') {
+        title = 'Liên hệ';
+        const email = document.getElementById('footer-email')?.innerText || 'contact@gundamstore.vn';
+        const phone = document.getElementById('footer-phone')?.innerText || '09xx xxx xxx';
+        body = `
+          <p><strong>Email:</strong> ${escapeHTML(email)}</p>
+          <p><strong>Hotline:</strong> ${escapeHTML(phone)}</p>
+          <p>Nếu cần hỗ trợ nhanh, bạn có thể dùng nút <strong>Chat</strong> ở góc màn hình để hỏi về đơn hàng, thanh toán, vận chuyển.</p>
+        `;
+    } else if (key === 'address') {
+        title = 'Địa chỉ cửa hàng';
+        const addr = document.getElementById('footer-address')?.innerText || 'TP.HCM, Việt Nam';
+        body = `
+          <p><strong>Địa chỉ:</strong> ${escapeHTML(addr)}</p>
+          <p><strong>Giờ làm việc:</strong> 09:00 - 21:00 (T2 - CN)</p>
+          <p><strong>Lưu ý:</strong> bạn có thể đặt hàng online và theo dõi tiến độ trong mục “📦 Quản lý đơn hàng”.</p>
+        `;
+    } else {
+        body = `<p>Nội dung đang được cập nhật.</p>`;
+    }
+
+    document.getElementById('intro-panel').innerHTML = `
+      <h2 style="color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 15px; margin-top: 0;">${escapeHTML(title)}</h2>
+      <div style="margin-top: 10px; line-height: 1.8;">${body}</div>
+      <div style="margin-top: 18px;">
+        <button class="btn-submit" style="width:auto; padding:10px 14px; background:#64748b" onclick="location.hash=''">⬅ Về trang chủ</button>
+      </div>
+    `;
+
+    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
+}
+
+window.showInfoPage = showInfoPage;
 
 function selectCategory(cat, element) {
     document.getElementById('category').value = cat;
@@ -426,3 +537,5 @@ function togglePassword(inputId, iconElement) {
 
 // Mở khóa hàm ra toàn cục (đề phòng file main.js bị đóng gói)
 window.togglePassword = togglePassword;
+window.toggleAdminConfigToolbar = toggleAdminConfigToolbar;
+window.switchAdminTab = switchAdminTab;

@@ -2,6 +2,20 @@
 body { margin:0; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:var(--light); color: var(--dark); overflow-x: hidden; }
 html { scroll-behavior: smooth; }
 
+/* Tinh chỉnh thanh cuộn (Scrollbar) */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; border: 2px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; border: 2px solid transparent; background-clip: content-box; }
+
+/* Thanh cuộn cho sidebar admin (nền tối) */
+.admin-config-toolbar ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); }
+.admin-config-toolbar ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+
+/* Hiệu ứng hover cho các nút hành động chính */
+.btn-submit:active { transform: scale(0.98); }
+.nav-item:active { opacity: 0.8; }
+
 /* Header & Thanh tìm kiếm */
 header { background: var(--white); padding: 15px 0; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 .header-inner { max-width: 1200px; margin: auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
@@ -21,7 +35,7 @@ header { background: var(--white); padding: 15px 0; border-bottom: 1px solid #ee
 .mobile-menu-btn { display: none; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--dark); margin-right: 15px; }
 
 /* Menu Đỏ */
-.main-nav { background: var(--primary); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); position: sticky; top: 73px; z-index: 999; transition: max-height 0.3s ease-out; }
+.main-nav { background: var(--primary); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); position: sticky; top: 73px; z-index: 999; }
 .nav-container { max-width: 1200px; margin: auto; display: flex; padding: 0 20px; overflow-x: auto; }
 .nav-item { color: white; padding: 15px 20px; cursor: pointer; font-weight: bold; font-size: 15px; white-space: nowrap; transition: 0.3s; text-transform: uppercase; }
 .nav-item:hover, .nav-item.active { background: rgba(0,0,0,0.1); }
@@ -30,6 +44,116 @@ header { background: var(--white); padding: 15px 0; border-bottom: 1px solid #ee
 .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; min-height: 70vh; }
 .hidden { display: none !important; }
 
+/* Footer */
+.site-footer { background: #0f172a; color: #e2e8f0; margin-top: 40px; }
+.footer-inner { max-width: 1200px; margin: auto; padding: 28px 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+.footer-title { font-weight: 800; margin-bottom: 10px; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; font-size: 14px; }
+.footer-item { font-size: 14px; color: #cbd5e1; margin: 6px 0; line-height: 1.6; }
+.site-footer a { color: #e2e8f0; text-decoration: underline; text-underline-offset: 3px; }
+.site-footer a:hover { color: #fff; }
+
+/* Support chat widget */
+#support-chat-launcher {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 900;
+  cursor: pointer;
+  z-index: 1100;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.25);
+}
+#support-chat-panel {
+  position: fixed;
+  right: 18px;
+  bottom: 86px;
+  width: 340px;
+  max-width: calc(100vw - 36px);
+  height: 440px;
+  max-height: calc(100vh - 140px);
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 14px;
+  overflow: hidden;
+  z-index: 1100;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.22);
+  display: flex;
+  flex-direction: column;
+}
+.chat-head {
+  padding: 12px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0f172a;
+  color: #fff;
+}
+.chat-title { font-weight: 900; }
+.chat-sub { font-size: 12px; color: #cbd5e1; margin-top: 2px; }
+.chat-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 900;
+}
+.chat-body {
+  padding: 12px;
+  overflow: auto;
+  flex: 1;
+  background: #f8fafc;
+}
+.chat-msg {
+  padding: 10px 12px;
+  border-radius: 12px;
+  margin: 8px 0;
+  max-width: 88%;
+  line-height: 1.4;
+  white-space: pre-wrap;
+}
+.chat-msg.user {
+  margin-left: auto;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+}
+.chat-msg.bot {
+  margin-right: auto;
+  background: #e0f2fe;
+  border: 1px solid #bae6fd;
+}
+.chat-foot {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid #eee;
+  background: #fff;
+}
+.chat-foot input {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  outline: none;
+}
+.chat-foot button {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: none;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
 /* Grid Sản phẩm */
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 25px; }
 .card { background: var(--white); border: 1px solid #eee; border-radius: 8px; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; position: relative; animation: fadeIn 0.4s ease; display: flex; flex-direction: column; }
@@ -37,6 +161,7 @@ header { background: var(--white); padding: 15px 0; border-bottom: 1px solid #ee
 .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); border-color: #ffdce0; }
 
 .card img { width: 100%; height: 240px; object-fit: cover; border-bottom: 1px solid #f0f0f0; }
+.card:hover img { transform: scale(1.05); }
 .card-content { padding: 15px; display: flex; flex-direction: column; flex: 1; }
 .price { color: var(--primary); font-weight: bold; font-size: 18px; margin-bottom: 10px; display: block; }
 .old-price { text-decoration: line-through; color: #999; font-size: 14px; margin-left: 10px; font-weight: normal; }

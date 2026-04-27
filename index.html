@@ -21,6 +21,11 @@
 
         <div class="header-actions">
             <button onclick="location.hash='#cart'">🛒 Giỏ Hàng <span id="cart-count" class="cart-count">0</span></button>
+            <button onclick="location.hash='#orders'">📦 Quản lý đơn hàng</button>
+            <button onclick="location.hash='#profile'">👤 Hồ sơ</button>
+            <a id="product-mgmt-btn" href="admin.html" style="padding:8px 16px; background:var(--primary); color:white; border:none; border-radius:4px; cursor:pointer; text-decoration:none; font-weight:600; display:none;">⚙️ Quản trị</a>
+            <span id="admin-link"></span>
+            <span id="stock-alert"></span>
             <span id="auth-btn"><button onclick="openModal()">👤 Đăng nhập</button></span>
         </div>
     </div>
@@ -34,6 +39,7 @@
         <div class="nav-item" onclick="selectCategory('RG', this)">GUNDAM RG</div>
         <div class="nav-item" onclick="selectCategory('MG', this)">GUNDAM MG</div>
         <div class="nav-item" onclick="selectCategory('PG', this)">GUNDAM PG</div>
+        <div id="admin-nav-item" class="nav-item hidden" onclick="toggleAdminConfigToolbar()" style="background: rgba(255,255,255,0.2); border-left: 1px solid rgba(255,255,255,0.3);">⚙️ QUẢN TRỊ NHANH</div>
     </div>
 </div>
 
@@ -89,41 +95,94 @@
 
     <div id="detail"></div>
 
-    <div id="admin-panel" class="admin hidden">
-        <h3>Quản lý sản phẩm</h3>
-        <input type="hidden" id="editIndex">
-        <input id="name" placeholder="Tên Gundam"><br><br>
-        <select id="cat">
-            <option>HG</option><option>MG</option><option>RG</option><option>PG</option>
-        </select><br><br>
-        <div style="display:flex; gap:10px">
-            <input id="price" type="number" placeholder="Giá bán (VNĐ)">
-            <input id="originalPrice" type="number" placeholder="Giá gốc (Để tính % giảm)">
-        </div><br>
-        <div style="display:flex; gap:10px">
-            <input id="stock" type="number" placeholder="Số lượng trong kho">
-            <select id="status"><option value="available">Sẵn hàng</option><option value="preorder">Đặt trước (Pre-order)</option></select>
-        </div><br>
-        <textarea id="images" placeholder="Link ảnh (Mỗi link một dòng)" rows="4"></textarea><br><br>
-        <input id="video" placeholder="ID Video Youtube (VD: dQw4w9WgXcQ)"><br><br>
-        <textarea id="desc" placeholder="Mô tả"></textarea><br><br>
-        <button class="btn-submit" onclick="saveProduct()">Lưu Sản Phẩm</button>
-        
-        <div id="bank-config-area" style="margin-top: 30px; border-top: 2px dashed #ddd; padding-top: 20px;"></div>
+    <!-- ADMIN CONFIG TOOLBAR (Horizontal Blue Bar) -->
+    <div id="admin-config-toolbar" class="admin-config-toolbar" style="position:fixed; top:0; right:-450px; width:400px; height:100vh; background:#0f172a; color:white; border-left:3px solid var(--primary); z-index:2000; box-shadow:-4px 0 12px rgba(0,0,0,0.3); transition: 0.4s ease-in-out; overflow: hidden; display: flex; flex-direction: column;">
+        <div style="padding:0; display: flex; flex-direction: column; height: 100%;">
+            <div style="display:flex; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1);">
+                <div style="flex:1; display:flex; gap:0;">
+                    <button class="admin-config-tab active" onclick="switchAdminTab('products')" style="flex:1; padding:14px; background:transparent; color:white; border:none; border-bottom:3px solid var(--primary); cursor:pointer; font-weight:600; transition:0.3s;">📦 Quản lý sản phẩm</button>
+                    <button class="admin-config-tab" onclick="switchAdminTab('bank')" style="flex:1; padding:14px; background:transparent; color:white; border:none; border-bottom:3px solid transparent; cursor:pointer; font-weight:600; transition:0.3s;">💳 Bank</button>
+                    <button class="admin-config-tab" onclick="switchAdminTab('interface')" style="flex:1; padding:14px; background:transparent; color:white; border:none; border-bottom:3px solid transparent; cursor:pointer; font-weight:600; transition:0.3s;">🎨 Giao diện</button>
+                </div>
+                <button onclick="toggleAdminConfigToolbar()" style="padding:14px 20px; background:transparent; color:white; border:none; cursor:pointer; font-size:20px;">✕</button>
+            </div>
 
-        <div style="margin-top: 30px; border-top: 2px dashed #ddd; padding-top: 20px;">
-            <h3>Cấu hình Giao diện & Banner</h3>
-            <div class="form-group"><label>Màu chủ đạo (Primary Color)</label><input type="color" id="cfg-color" value="#e3001b" style="height:40px"></div>
-            <div class="form-group"><label>Hình nền (Link ảnh hoặc mã màu)</label><input type="text" id="cfg-bg" placeholder="VD: https://anh.com/bg.jpg hoặc #f4f4f4"></div>
-            <div class="form-group"><label>Banner Quảng cáo (Mỗi link 1 dòng)</label><textarea id="cfg-banners" rows="4" placeholder="Nhập link ảnh banner..."></textarea></div>
-            <button onclick="saveSiteConfig()" class="btn-submit" style="background:#0f172a;">Lưu Giao Diện</button>
+            <div style="max-height:70vh; overflow-y:auto; padding:20px;">
+                <!-- Tab 1: Quản lý sản phẩm -->
+                <div id="admin-tab-products" class="admin-config-tab-content" style="display:block;">
+                    <h3 style="margin-top:0; color:white;">Quản lý sản phẩm</h3>
+                    <input type="hidden" id="editIndex">
+                    <input id="name" placeholder="Tên Gundam" style="margin-bottom:10px;"><br>
+                    <select id="cat" style="margin-bottom:10px; width:100%; padding:10px; border-radius:4px; border:1px solid #ddd;">
+                        <option>HG</option><option>MG</option><option>RG</option><option>PG</option>
+                    </select><br>
+                    <div style="display:flex; gap:10px; margin-bottom:10px;">
+                        <input id="price" type="number" placeholder="Giá bán (VNĐ)" style="flex:1;">
+                        <input id="originalPrice" type="number" placeholder="Giá gốc (Để tính % giảm)" style="flex:1;">
+                    </div>
+                    <div style="display:flex; gap:10px; margin-bottom:10px;">
+                        <input id="stock" type="number" placeholder="Số lượng trong kho" style="flex:1;">
+                        <select id="status" style="flex:1; padding:10px; border-radius:4px; border:1px solid #ddd;"><option value="available">Sẵn hàng</option><option value="preorder">Đặt trước (Pre-order)</option></select>
+                    </div>
+                    <textarea id="images" placeholder="Link ảnh (Mỗi link một dòng)" rows="3" style="width:100%; margin-bottom:10px; padding:10px; border-radius:4px; border:1px solid #ddd;"></textarea>
+                    <input id="video" placeholder="ID Video Youtube (VD: dQw4w9WgXcQ)" style="margin-bottom:10px; width:100%; padding:10px; border-radius:4px; border:1px solid #ddd;"><br>
+                    <textarea id="desc" placeholder="Mô tả" style="width:100%; margin-bottom:10px; padding:10px; border-radius:4px; border:1px solid #ddd;"></textarea><br>
+                    <button class="btn-submit" onclick="saveProduct()" style="background:var(--primary); width:100%;">Lưu Sản Phẩm</button>
+                    <hr style="border:none; border-top:1px solid rgba(255,255,255,0.2); margin:20px 0;">
+                    <div id="admin-list"></div>
+                </div>
+
+                <!-- Tab 2: Cấu hình Chuyển khoản -->
+                <div id="admin-tab-bank" class="admin-config-tab-content" style="display:none;">
+                    <h3 style="margin-top:0; color:white;">Cấu hình Chuyển khoản</h3>
+                    <div style="background:rgba(255,255,255,0.05); padding:20px; border-radius:8px; margin-bottom:20px;">
+                        <div class="form-group"><label style="color:white; display:block; margin-bottom:8px;">Tên Ngân hàng</label><input type="text" id="bank-name" placeholder="VD: MB Bank (Quân Đội)" style="width:100%; padding:10px; border-radius:4px; border:1px solid #ddd;"></div>
+                        <div class="form-group"><label style="color:white; display:block; margin-bottom:8px;">Số tài khoản</label><input type="text" id="bank-account" placeholder="VD: 0334831376" style="width:100%; padding:10px; border-radius:4px; border:1px solid #ddd;"></div>
+                        <div class="form-group"><label style="color:white; display:block; margin-bottom:8px;">Chủ tài khoản</label><input type="text" id="bank-owner" placeholder="VD: PHAM HUY HIEP" style="width:100%; padding:10px; border-radius:4px; border:1px solid #ddd;"></div>
+                        <div class="form-group"><label style="color:white; display:block; margin-bottom:8px;">Link QR Code</label><input type="text" id="bank-qr" placeholder="https://img.vietqr.io/image/..." style="width:100%; padding:10px; border-radius:4px; border:1px solid #ddd;"></div>
+                        <button onclick="saveBankConfig()" class="btn-submit" style="background:var(--primary); width:100%; margin-top:15px;">Lưu Cấu Hình Bank</button>
+                    </div>
+                    <div id="bank-config-area"></div>
+                </div>
+
+                <!-- Tab 3: Giao diện & Banner -->
+                <div id="admin-tab-interface" class="admin-config-tab-content" style="display:none;">
+                    <h3 style="margin-top:0; color:white;">Cấu hình Giao diện & Banner</h3>
+                    <div class="form-group"><label style="color:white;">Màu chủ đạo (Primary Color)</label><input type="color" id="cfg-color" value="#e3001b" style="height:40px; width:100%; cursor:pointer;"></div>
+                    <div class="form-group"><label style="color:white;">Hình nền (Link ảnh hoặc mã màu)</label><input type="text" id="cfg-bg" placeholder="VD: https://anh.com/bg.jpg hoặc #f4f4f4" style="width:100%; padding:10px; border-radius:4px; border:1px solid #ddd;"></div>
+                    <div class="form-group"><label style="color:white;">Banner Quảng cáo (Mỗi link 1 dòng)</label><textarea id="cfg-banners" rows="3" placeholder="Nhập link ảnh banner..." style="width:100%; padding:10px; border-radius:4px; border:1px solid #ddd;"></textarea></div>
+                    <button onclick="saveSiteConfig()" class="btn-submit" style="background:var(--primary); width:100%;">Lưu Giao Diện</button>
+                </div>
+            </div>
         </div>
-        <hr>
-        <div id="admin-list"></div>
     </div>
+
+    <div id="admin-panel" class="admin hidden" style="display:none !important;"></div>
 </div>
 
-<button id="backToTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" style="position:fixed; bottom:20px; left:20px; background:var(--primary); color:white; width:45px; height:45px; border-radius:50%; border:none; cursor:pointer; font-size:20px; display:none; z-index:999; box-shadow:0 4px 10px rgba(0,0,0,0.3); transition: 0.3s;">⬆</button>
+<footer class="site-footer">
+    <div class="footer-inner">
+        <div class="footer-col">
+            <div class="footer-title">Liên hệ</div>
+            <div class="footer-item"><strong>Email:</strong> <span id="footer-email">contact@gundamstore.vn</span></div>
+            <div class="footer-item"><strong>Hotline:</strong> <span id="footer-phone">09xx xxx xxx</span></div>
+            <div class="footer-item"><a href="#contact" onclick="showInfoPage('contact'); return false;">Xem thông tin liên hệ</a></div>
+        </div>
+        <div class="footer-col">
+            <div class="footer-title">Địa chỉ</div>
+            <div class="footer-item" id="footer-address">TP.HCM, Việt Nam</div>
+            <div class="footer-item"><a href="#address" onclick="showInfoPage('address'); return false;">Xem địa chỉ cửa hàng</a></div>
+        </div>
+        <div class="footer-col">
+            <div class="footer-title">Chính sách</div>
+            <div class="footer-item"><a href="#policy" onclick="showInfoPage('policy'); return false;">Chính sách đổi trả</a></div>
+            <div class="footer-item"><a href="#shipping" onclick="showInfoPage('shipping'); return false;">Chính sách vận chuyển</a></div>
+            <div class="footer-item"><a href="#privacy" onclick="showInfoPage('privacy'); return false;">Chính sách bảo mật</a></div>
+        </div>
+    </div>
+</footer>
+
+<button id="backToTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" style="position:fixed; bottom:25px; left:25px; background:var(--primary); color:white; width:50px; height:50px; border-radius:16px; border:none; cursor:pointer; font-size:20px; display:none; z-index:999; box-shadow:0 8px 25px rgba(227,0,27,0.3); transition: 0.3s; font-weight: bold;">↑</button>
 
 <div class="toast-container" id="toast-container"></div>
 
@@ -202,10 +261,23 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 <script src="data.js"></script>
 <script src="cart.js"></script>
+<script src="customers.js"></script>
+<script src="orders.js"></script>
 <script src="admin.js"></script>
 <script src="main.js"></script>
+<script src="chat.js"></script>
 
 <script type="module" src="auth.js"></script>
+
+<script>
+    // Nếu mở bằng file:// thì module import (auth.js/firebase) có thể bị chặn -> nút đăng nhập không hoạt động.
+    (function warnIfFileProtocol(){
+        if(location.protocol !== 'file:') return;
+        const msg = 'Bạn đang mở bằng file:// nên đăng nhập (Firebase/module) có thể không chạy. Hãy dùng Live Server (http://localhost...) để test.';
+        if(typeof showToast === 'function') showToast(msg, 'error');
+        else alert(msg);
+    })();
+</script>
 
 </body>
 </html>

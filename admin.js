@@ -36,7 +36,7 @@ function saveProduct(){
     
     // Reset Form (Làm trống các ô nhập liệu sau khi lưu)
     clearAdminForm();
-    render();
+    if(typeof render === 'function') render();
     renderAdmin();
 }
 
@@ -53,21 +53,29 @@ function clearAdminForm() {
 }
 
 function renderAdmin(){
-    let html = '<table style="width:100%; border-collapse:collapse; margin-top:15px; font-size:14px;">';
-    html += '<tr style="background:#f1f1f1; text-align:left"><th style="padding:10px; border:1px solid #ddd">Tên SP</th><th style="padding:10px; border:1px solid #ddd">Giá</th><th style="padding:10px; border:1px solid #ddd">Hành động</th></tr>';
+    let html = '<div style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">';
     
     AppState.products.forEach((p, i) => {
+        const mainImg = Array.isArray(p.images) && p.images.length > 0 ? p.images[0] : 'https://via.placeholder.com/50';
         html += `
-        <tr>
-            <td style="padding:10px; border:1px solid #ddd"><strong>${escapeHTML(p.name)}</strong><br><small>${p.category} | Kho: ${p.stock}</small></td>
-            <td style="padding:10px; border:1px solid #ddd; color:var(--primary)">${p.price.toLocaleString()} ₫</td>
-            <td style="padding:10px; border:1px solid #ddd">
-                <button onclick="edit(${i})" style="padding:5px 10px; background:#f59e0b; color:white; border:none; border-radius:4px; cursor:pointer">Sửa</button> 
-                <button onclick="del(${i})" style="padding:5px 10px; background:#ef4444; color:white; border:none; border-radius:4px; cursor:pointer">Xóa</button>
-            </td>
-        </tr>`;
+        <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(255,255,255,0.1); transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+            <img src="${escapeHTML(mainImg)}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
+            <div style="flex: 1; min-width: 0;">
+                <div style="font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff;">${escapeHTML(p.name)}</div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.5);">${p.category} | Kho: ${p.stock}</div>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-weight: 700; color: var(--primary); font-size: 14px; margin-bottom: 4px;">${p.price.toLocaleString()}₫</div>
+                <div style="display: flex; gap: 6px; justify-content: flex-end;">
+                    <button onclick="edit(${i})" style="width: 32px; height: 32px; border-radius: 8px; border: none; background: #f59e0b; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px;" title="Sửa">✎</button>
+                    <button onclick="del(${i})" style="width: 32px; height: 32px; border-radius: 8px; border: none; background: #ef4444; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px;" title="Xóa">🗑</button>
+                </div>
+            </div>
+        </div>`;
     });
-    html += '</table>';
+    
+    if (AppState.products.length === 0) html = '<p style="text-align:center; color:rgba(255,255,255,0.5); padding:20px;">Chưa có sản phẩm nào.</p>';
+    html += '</div>';
     document.getElementById('admin-list').innerHTML = html;
 }
 
@@ -94,7 +102,7 @@ function del(i){
         AppState.products.splice(i, 1);
         localStorage.setItem('products', JSON.stringify(AppState.products));
         showToast('Đã xóa sản phẩm!', 'success');
-        render(); 
+        if(typeof render === 'function') render(); 
         renderAdmin();
     }
 }

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Cấu hình chuyển khoản</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .admin-layout { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .admin-header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom: 16px; }
+    .admin-header h1 { margin:0; font-size: 20px; }
+    .admin-card { background:#fff; border:1px solid #eee; border-radius: 10px; padding: 18px; }
+    .admin-hint { color:#64748b; font-size: 13px; margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <script type="module">
+    import { requireAdminOrRedirect } from './js/auth/role.js';
+    requireAdminOrRedirect({ redirectTo: 'index.html' });
+  </script>
+
+  <div class="admin-layout">
+    <div class="admin-header">
+      <h1>💳 Cấu hình Chuyển khoản</h1>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <a class="btn-submit" href="admin.html" style="text-decoration:none; width:auto; padding:10px 14px; background:#0f172a;">⬅ Dashboard</a>
+        <a class="btn-submit" href="index.html" style="text-decoration:none; width:auto; padding:10px 14px; background:#64748b;">⬅ Trang chủ</a>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <p class="admin-hint">Thiết lập thông tin ngân hàng/QR để khách chuyển khoản khi thanh toán.</p>
+      <div id="bank-config-area" style="margin-top: 10px;"></div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="admin-shared.js"></script>
+  <script src="data.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
+

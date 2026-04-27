@@ -1,4 +1,5 @@
 import { auth } from './firebase-config.js';
+import { isAdminUser, normalizeUserRole, saveCurrentUser } from './js/auth/role.js';
 import { 
     createUserWithEmailAndPassword, 
     signInWithEmailAndPassword,
@@ -40,10 +41,16 @@ export function showForgotPassword() {
 export function updateAuthBtn() {
     const authBtnContainer = document.getElementById('auth-btn');
     const adminPanel = document.getElementById('admin-panel'); // Trỏ tới khu vực quản trị
+    const adminLink = document.getElementById('admin-link');
+    const adminNavItem = document.getElementById('admin-nav-item');
     
     if (!authBtnContainer) return;
 
     if (AppState.currentUser) {
+        // Chuẩn hóa role để tương thích dữ liệu cũ
+        AppState.currentUser = normalizeUserRole(AppState.currentUser);
+        saveCurrentUser(AppState.currentUser);
+
         // 1. Hiển thị tên người dùng và nút Thoát
         authBtnContainer.innerHTML = `
             <div style="display: flex; align-items: center; gap: 12px; background: #f8fafc; padding: 5px 15px; border-radius: 50px; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
@@ -57,21 +64,28 @@ export function updateAuthBtn() {
         `;
 
         // 2. PHÂN QUYỀN: KIỂM TRA XEM CÓ PHẢI ADMIN KHÔNG
-        // Cấp quyền cho email nhom3@gmail.com hoặc tài khoản 'admin' cũ
-        if (AppState.currentUser.username === 'nhom3@gmail.com' || AppState.currentUser.username === 'admin') {
+        if (isAdminUser(AppState.currentUser)) {
             if (adminPanel) {
                 adminPanel.classList.remove('hidden'); // Mở khóa khu vực quản trị
                 if (typeof renderAdmin === 'function') renderAdmin(); // Tải dữ liệu sản phẩm vào bảng
             }
+            if (adminLink) {
+                adminLink.innerHTML = `<a href="admin.html" style="margin-left:10px; padding:8px 12px; border-radius:999px; border:1px solid var(--primary); color:var(--primary); background:#fff; font-weight:600; text-decoration:none;">⚙ Admin</a>`;
+            }
+            if (adminNavItem) adminNavItem.classList.remove('hidden');
         } else {
             // Nếu là người dùng bình thường -> Giấu khu vực quản trị
             if (adminPanel) adminPanel.classList.add('hidden');
+            if (adminLink) adminLink.innerHTML = '';
+            if (adminNavItem) adminNavItem.classList.add('hidden');
         }
 
     } else {
         // Chưa đăng nhập: Hiển thị nút mặc định và giấu khu vực quản trị
         authBtnContainer.innerHTML = `<button onclick="openModal()">👤 Đăng nhập</button>`;
         if (adminPanel) adminPanel.classList.add('hidden');
+        if (adminLink) adminLink.innerHTML = '';
+        if (adminNavItem) adminNavItem.classList.add('hidden');
     }
 }
 
@@ -137,11 +151,18 @@ export function handleForgotPassword() {
 }
 
 function loginSuccess(user) {
-    AppState.currentUser = user;
-    localStorage.setItem('currentUser', JSON.stringify(user));
+    AppState.currentUser = normalizeUserRole(user);
+    saveCurrentUser(AppState.currentUser);
     showToast('Xin chào, ' + user.fullname, 'success');
     closeModal();
     updateAuthBtn(); // Cập nhật giao diện ngay lập tức
+
+    // Yêu cầu: đăng nhập xong reset về trang chủ
+    try {
+        window.location.hash = '';
+        if (typeof window.render === 'function') window.render();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch {}
 }
 
 export function logout() {

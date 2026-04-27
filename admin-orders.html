@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Đơn hàng</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .admin-layout { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .admin-header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom: 16px; }
+    .admin-header h1 { margin:0; font-size: 20px; }
+    .admin-card { background:#fff; border:1px solid #eee; border-radius: 10px; padding: 18px; }
+    .admin-hint { color:#64748b; font-size: 13px; margin-top: 6px; }
+    .orders-toolbar { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top: 10px; }
+    .orders-toolbar input, .orders-toolbar select { max-width: 320px; }
+    .orders-grid { display:grid; grid-template-columns: 1.4fr 1fr; gap: 14px; margin-top: 12px; }
+    @media (max-width: 980px) { .orders-grid { grid-template-columns: 1fr; } }
+    .panel { border:1px solid #eee; border-radius: 10px; padding: 12px; background:#fff; }
+    .panel-title { font-weight: 900; margin: 0 0 10px; }
+    .badge { display:inline-flex; align-items:center; gap:6px; padding: 4px 10px; border-radius: 999px; border:1px solid #eee; font-weight:800; font-size: 12px; background:#fff; }
+  </style>
+</head>
+<body>
+  <script type="module">
+    import { requireAdminOrRedirect } from './js/auth/role.js';
+    requireAdminOrRedirect({ redirectTo: 'index.html' });
+  </script>
+
+  <div class="admin-layout">
+    <div class="admin-header">
+      <h1>📦 Đơn hàng</h1>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <a class="btn-submit" href="admin.html" style="text-decoration:none; width:auto; padding:10px 14px; background:#0f172a;">⬅ Dashboard</a>
+        <a class="btn-submit" href="index.html" style="text-decoration:none; width:auto; padding:10px 14px; background:#64748b;">⬅ Trang chủ</a>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:space-between;">
+        <div>
+          <div class="admin-hint" style="margin-top:0;">Lọc/tìm kiếm và cập nhật trạng thái theo luồng xử lý.</div>
+        </div>
+        <div id="orders-summary" class="badge">0 đơn</div>
+      </div>
+
+      <div class="orders-toolbar">
+        <input id="orders-q" placeholder="Tìm theo mã đơn / tên / SĐT..." />
+        <select id="orders-status">
+          <option value="all">Tất cả trạng thái</option>
+          <option value="pending">Chờ xác nhận</option>
+          <option value="confirmed">Đã xác nhận</option>
+          <option value="packing">Đóng gói</option>
+          <option value="shipping">Đang giao</option>
+          <option value="delivered">Đã giao</option>
+          <option value="cancelled">Đã hủy</option>
+        </select>
+        <button class="btn-submit" style="width:auto; padding:10px 14px;" onclick="renderAdminOrders()">Lọc</button>
+      </div>
+
+      <div class="orders-grid">
+        <div class="panel">
+          <div class="panel-title">Danh sách đơn</div>
+          <div id="admin-orders-content"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">Chi tiết</div>
+          <div id="admin-order-detail" class="admin-hint">Chọn một đơn để xem chi tiết.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="admin-shared.js"></script>
+  <script src="data.js"></script>
+  <script src="orders.js"></script>
+  <script src="js/admin/orders.admin.js"></script>
+  <script>
+    // Render lần đầu + auto filter khi gõ
+    (function initOrdersAdminPage(){
+      const q = document.getElementById('orders-q');
+      const s = document.getElementById('orders-status');
+      if(q) {
+        let t;
+        q.addEventListener('input', () => {
+          clearTimeout(t);
+          t = setTimeout(() => renderAdminOrders(), 250);
+        });
+      }
+      if(s) s.addEventListener('change', () => renderAdminOrders());
+      if(typeof renderAdminOrders === 'function') renderAdminOrders();
+    })();
+  </script>
+</body>
+</html>
+

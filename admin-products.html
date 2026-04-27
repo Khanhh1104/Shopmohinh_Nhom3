@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Quản lý sản phẩm</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .admin-layout { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .admin-header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom: 16px; }
+    .admin-header h1 { margin:0; font-size: 20px; }
+    .admin-card { background:#fff; border:1px solid #eee; border-radius: 10px; padding: 18px; }
+  </style>
+</head>
+<body>
+  <script type="module">
+    import { requireAdminOrRedirect } from './js/auth/role.js';
+    requireAdminOrRedirect({ redirectTo: 'index.html' });
+  </script>
+
+  <div class="admin-layout">
+    <div class="admin-header">
+      <h1>📦 Quản lý sản phẩm</h1>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <a class="btn-submit" href="admin.html" style="text-decoration:none; width:auto; padding:10px 14px; background:#0f172a;">⬅ Dashboard</a>
+        <a class="btn-submit" href="index.html" style="text-decoration:none; width:auto; padding:10px 14px; background:#64748b;">⬅ Trang chủ</a>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <div id="admin-panel" class="admin" style="display:block; padding:0; border:none; box-shadow:none;">
+        <h3>Quản lý sản phẩm</h3>
+        <input type="hidden" id="editIndex">
+        <input id="name" placeholder="Tên Gundam"><br><br>
+        <select id="cat">
+          <option>HG</option><option>MG</option><option>RG</option><option>PG</option>
+        </select><br><br>
+        <div style="display:flex; gap:10px">
+          <input id="price" type="number" placeholder="Giá bán (VNĐ)">
+          <input id="originalPrice" type="number" placeholder="Giá gốc (Để tính % giảm)">
+        </div><br>
+        <div style="display:flex; gap:10px">
+          <input id="stock" type="number" placeholder="Số lượng trong kho">
+          <select id="status"><option value="available">Sẵn hàng</option><option value="preorder">Đặt trước (Pre-order)</option></select>
+        </div><br>
+        <textarea id="images" placeholder="Link ảnh (Mỗi link một dòng)" rows="4"></textarea><br><br>
+        <input id="video" placeholder="ID Video Youtube (VD: dQw4w9WgXcQ)"><br><br>
+        <textarea id="desc" placeholder="Mô tả"></textarea><br><br>
+        <button class="btn-submit" onclick="saveProduct()">Lưu Sản Phẩm</button>
+        <hr>
+        <div id="admin-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="admin-shared.js"></script>
+  <script src="data.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
+
